@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, status, Query
 from fastapi.responses import JSONResponse
-from typing import Dict, Any, List, Annotated
-from pydantic import BaseModel, NonNegativeInt, PositiveInt, NonNegativeFloat
+from typing import Annotated, Dict, Any, List
+from pydantic import BaseModel, NonNegativeFloat, NonNegativeInt, PositiveInt
 from lecture_2.hw.shop_api.models import Item, Cart, CartItem, ItemPost
 
 app = FastAPI(title="Shop API")
@@ -91,7 +91,7 @@ def delete_item(id: int):
 
 
 @app.post("/cart", status_code=status.HTTP_201_CREATED)
-def post_cart():
+def create_cart():
     cart_id = len(carts_db) + 1
     carts_db[cart_id] = Cart(id=cart_id)
     return JSONResponse(content={"id": cart_id},
@@ -108,11 +108,11 @@ def get_cart(id: int):
 
 @app.get("/cart", response_model=List[CartResponse])
 def get_cart_list(offset: Annotated[NonNegativeInt, Query()] = 0,
-               limit: Annotated[PositiveInt, Query()] = 10,
-               min_price: Annotated[NonNegativeFloat, Query()] = None,
-               max_price: Annotated[NonNegativeFloat, Query()] = None,
-               min_quantity: Annotated[NonNegativeInt, Query()] = None,
-               max_quantity: Annotated[NonNegativeInt, Query()] = None):
+                  limit: Annotated[PositiveInt, Query()] = 10,
+                  min_price: Annotated[NonNegativeFloat, Query()] = None,
+                  max_price: Annotated[NonNegativeFloat, Query()] = None,
+                  min_quantity: Annotated[NonNegativeInt, Query()] = None,
+                  max_quantity: Annotated[NonNegativeInt, Query()] = None):
 
     filtered_carts_db = [cart for cart in list(carts_db.values())[offset:offset + limit]
                       if (min_price is None or cart.price >= min_price) and
